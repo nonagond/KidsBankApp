@@ -94,14 +94,15 @@ export default function KidDetailPage() {
   return (
     <div className="pb-8">
       {/* Hero header */}
-      <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-4 pt-12 pb-8 relative">
+      <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-4 pt-12 pb-8 relative safe-top">
         <button
           onClick={() => navigate('/')}
-          className="absolute top-4 left-4 text-white/80 hover:text-white text-sm font-medium flex items-center gap-1"
+          className="absolute left-4 text-white/80 hover:text-white text-sm font-medium flex items-center gap-1"
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}
         >
           ‹ Back
         </button>
-        <div className="absolute top-4 right-4 flex gap-3">
+        <div className="absolute right-4 flex gap-3" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}>
           {accounts.length > 0 && (
             <button
               onClick={() => setShowAccountManager(true)}

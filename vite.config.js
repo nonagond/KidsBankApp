@@ -7,10 +7,16 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        clientsClaim: true,
+        skipWaiting: true,
+        cleanupOutdatedCaches: true,
+      },
       manifest: {
         name: 'KidsBank',
         short_name: 'KidsBank',
         description: "Track your kids' allowances and savings goals",
+        start_url: '/?v=0.4.0',
         theme_color: '#6366f1',
         background_color: '#f9fafb',
         display: 'standalone',

@@ -120,6 +120,28 @@ export default function SendMoneyForm({ isOpen, onClose, sourceKid, accounts, se
               autoFocus
             />
           </div>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {[0.25, 0.50, 1.00, 10.00].map(v => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => {
+                  const current = parseFloat(amount) || 0
+                  setAmount((current + v).toFixed(2))
+                }}
+                className="px-3 py-1.5 text-sm font-medium bg-indigo-50 text-indigo-700 rounded-full hover:bg-indigo-100 active:bg-indigo-200 transition-colors"
+              >
+                +${v.toFixed(2)}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setAmount('')}
+              className="px-3 py-1.5 text-sm font-medium bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 active:bg-gray-300 transition-colors"
+            >
+              Reset
+            </button>
+          </div>
         </div>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}

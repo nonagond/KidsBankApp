@@ -67,7 +67,7 @@ export default function AccountManager({ isOpen, onClose, accounts, onAdd, onRen
                     <span className="font-medium text-sm text-gray-900 truncate">{a.name}</span>
                     {a.is_default && (
                       <span className="text-xs bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-medium">
-                        Default
+                        Main
                       </span>
                     )}
                   </div>

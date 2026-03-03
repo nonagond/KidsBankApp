@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 import AvatarPicker from './AvatarPicker'
+import ImageCropper from './ImageCropper'
 import { useKids } from '../../hooks/useKids'
 import { useFamily } from '../../context/FamilyContext'
 import { uploadAvatar } from '../../lib/avatarStorage'
@@ -13,6 +14,7 @@ export default function KidForm({ isOpen, onClose, kid = null }) {
   const [avatar, setAvatar] = useState(kid?.avatar ?? '🐱')
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
+  const [cropSrc, setCropSrc] = useState(null) // raw image URL for cropper
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -22,18 +24,31 @@ export default function KidForm({ isOpen, onClose, kid = null }) {
       setAvatar(kid?.avatar ?? '🐱')
       setImageFile(null)
       setImagePreview(null)
+      setCropSrc(null)
       setError('')
     }
   }, [isOpen, kid])
 
   function handleImageSelect(file) {
     if (file) {
-      setImageFile(file)
-      setImagePreview(URL.createObjectURL(file))
+      // Open cropper with the raw image
+      setCropSrc(URL.createObjectURL(file))
     } else {
       setImageFile(null)
       setImagePreview(null)
+      setCropSrc(null)
     }
+  }
+
+  function handleCropDone(blob) {
+    const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(blob))
+    setCropSrc(null)
+  }
+
+  function handleCropCancel() {
+    setCropSrc(null)
   }
 
   async function handleSubmit(e) {
@@ -62,7 +77,10 @@ export default function KidForm({ isOpen, onClose, kid = null }) {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={kid ? 'Edit Kid' : 'Add Kid'}>
+    <Modal isOpen={isOpen} onClose={onClose} title={cropSrc ? 'Crop Photo' : kid ? 'Edit Kid' : 'Add Kid'}>
+      {cropSrc ? (
+        <ImageCropper imageSrc={cropSrc} onCropDone={handleCropDone} onCancel={handleCropCancel} />
+      ) : (
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
@@ -90,6 +108,7 @@ export default function KidForm({ isOpen, onClose, kid = null }) {
           </Button>
         </div>
       </form>
+      )}
     </Modal>
   )
 }

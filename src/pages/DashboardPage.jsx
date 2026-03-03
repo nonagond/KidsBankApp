@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
+import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { useAuth } from '../context/AuthContext'
 import { useFamily } from '../context/FamilyContext'
 import { supabase } from '../lib/supabase'
@@ -11,13 +14,34 @@ import Modal from '../components/ui/Modal'
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { family, kids, loading, setFamily } = useFamily()
+  const { family, kids, loading, setFamily, refreshKids } = useFamily()
   const [showAddKid, setShowAddKid] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   // Onboarding form state
   const [familyName, setFamilyName] = useState('')
   const [onboardSaving, setOnboardSaving] = useState(false)
   const [onboardError, setOnboardError] = useState('')
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+  )
+
+  async function handleDragEnd(event) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = kids.findIndex(k => k.id === active.id)
+    const newIndex = kids.findIndex(k => k.id === over.id)
+    const reordered = arrayMove(kids, oldIndex, newIndex)
+
+    // Persist new sort_order for each kid
+    const updates = reordered.map((kid, i) => (
+      supabase.from('kids').update({ sort_order: i }).eq('id', kid.id)
+    ))
+    await Promise.all(updates)
+    await refreshKids()
+  }
 
   useEffect(() => {
     if (!loading && !family) setShowOnboarding(true)
@@ -51,7 +75,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-4 pt-10">
+    <div className="p-4 pt-6 safe-top">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -76,9 +100,18 @@ export default function DashboardPage() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-3">
-          {kids.map(kid => <KidCard key={kid.id} kid={kid} />)}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToVerticalAxis]}
+        >
+          <SortableContext items={kids.map(k => k.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-3">
+              {kids.map(kid => <KidCard key={kid.id} kid={kid} />)}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       <KidForm isOpen={showAddKid} onClose={() => setShowAddKid(false)} />

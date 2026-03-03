@@ -32,7 +32,7 @@ export default function AllowancePage() {
   }
 
   return (
-    <div className="p-4 pt-10">
+    <div className="p-4 pt-6 safe-top">
       <button
         onClick={() => navigate(`/kids/${kidId}`)}
         className="text-indigo-600 text-sm font-medium mb-6 flex items-center gap-1"

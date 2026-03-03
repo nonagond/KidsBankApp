@@ -6,6 +6,7 @@ import { useFamily } from '../context/FamilyContext'
 import { supabase } from '../lib/supabase'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
+import { version } from '../../package.json'
 
 export default function SettingsPage() {
   const { signOut } = useAuth()
@@ -34,7 +35,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-4 pt-10">
+    <div className="p-4 pt-6 safe-top">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
 
       <div className="space-y-4">
@@ -59,6 +60,8 @@ export default function SettingsPage() {
           </Button>
         </Card>
       </div>
+
+      <p className="text-center text-xs text-gray-400 mt-8">v{version}</p>
     </div>
   )
 }

@@ -85,6 +85,9 @@ create trigger kids_after_insert_create_account
 -- ============================================================
 -- UPDATED: apply_transaction (now account-aware)
 -- ============================================================
+-- Drop the old 4-param overload to avoid ambiguity
+drop function if exists public.apply_transaction(uuid, numeric, public.transaction_type, text);
+
 create or replace function public.apply_transaction(
   p_kid_id      uuid,
   p_amount      numeric,
@@ -219,13 +222,14 @@ begin
     set balance = balance + v_delta, updated_at = now()
   where id = v_txn.account_id;
 
-  -- Update kid total balance
-  update public.kids
-    set balance = balance + v_delta, updated_at = now()
-  where id = v_txn.kid_id;
-
   -- Delete the transaction
   delete from public.transactions where id = p_txn_id;
+
+  -- Recalculate kid total balance from accounts
+  update public.kids
+    set balance = (select coalesce(sum(balance), 0) from public.accounts where kid_id = v_txn.kid_id),
+        updated_at = now()
+  where id = v_txn.kid_id;
 end;
 $$;
 
@@ -279,9 +283,10 @@ begin
     set balance = balance + v_diff, updated_at = now()
   where id = v_old.account_id;
 
-  -- Update kid total balance
+  -- Recalculate kid total balance from accounts
   update public.kids
-    set balance = balance + v_diff, updated_at = now()
+    set balance = (select coalesce(sum(balance), 0) from public.accounts where kid_id = v_old.kid_id),
+        updated_at = now()
   where id = v_old.kid_id;
 
   -- Update the transaction

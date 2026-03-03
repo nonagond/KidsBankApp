@@ -20,7 +20,7 @@ export default function TransactionItem({ txn, onEdit, onDelete }) {
         </p>
         <p className="text-xs text-gray-400">
           {format(date, 'MMM d, yyyy · h:mm a')}
-          {txn.account?.name && txn.account.name !== 'Default' && ` · ${txn.account.name}`}
+          {txn.account?.name && txn.account.name !== 'Main' && ` · ${txn.account.name}`}
         </p>
       </div>
       <p className={`font-bold text-sm tabular-nums ${cfg.color}`}>

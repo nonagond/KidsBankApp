@@ -34,7 +34,7 @@ export function FamilyProvider({ children }) {
       .from('kids')
       .select('*')
       .eq('family_id', familyId)
-      .order('created_at', { ascending: true })
+      .order('sort_order', { ascending: true })
     setKids(data ?? [])
     return data ?? []
   }, [])

@@ -15,7 +15,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full sm:max-w-md bg-white rounded-b-3xl sm:rounded-2xl shadow-xl p-6 animate-slide-up">
+      <div className="relative w-full sm:max-w-md bg-white rounded-b-3xl sm:rounded-2xl shadow-xl p-6 safe-top animate-slide-up">
         {title && (
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-gray-900">{title}</h2>
